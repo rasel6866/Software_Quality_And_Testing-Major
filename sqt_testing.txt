@@ -1,0 +1,208 @@
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import os
+ 
+driver = webdriver.Chrome()
+driver.maximize_window()
+wait = WebDriverWait(driver, 10)
+ 
+try:
+    
+    driver.get("http://localhost/projectl/View/registration.php")
+ 
+    # Form fillup
+    driver.find_element(By.ID, "fname").send_keys("Test")
+    driver.find_element(By.ID, "lname").send_keys("User")
+    driver.find_element(By.ID, "uname").send_keys("testuser123")
+    driver.find_element(By.ID, "email").send_keys("testuser123@gmail.com")
+    driver.find_element(By.ID, "pwd").send_keys("123456")
+    driver.find_element(By.ID, "male").click()
+    driver.find_element(By.ID, "phone").send_keys("01712345678")
+    driver.find_element(By.ID, "nid").send_keys("1234567890")
+ 
+    # Blood group select
+    blood_dropdown = Select(driver.find_element(By.ID, "blood"))
+    blood_dropdown.select_by_visible_text("A+ve")
+ 
+    # File upload
+    
+    file_path = os.path.abspath("test_image.jpg")
+    driver.find_element(By.ID, "pic").send_keys(r"c:\xampp\htdocs\projectl\uploads\IMG_20221020_125643_1.jpg")
+ 
+    # Submit
+    driver.find_element(By.NAME, "register").click()
+ 
+    time.sleep(2)
+ 
+    # Success check
+    page_source = driver.page_source
+    if "Data Inserted successfully" in page_source:
+        print("Registration Test Passed")
+    else:
+        print("Registration Test Failed")
+ 
+finally:
+    input("Press Enter to close...")
+    driver.quit()
+ 
+ 
+ 
+-------------------------------login---------------------------------------------------------------------
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+ 
+driver = webdriver.Chrome()
+driver.maximize_window()
+wait = WebDriverWait(driver, 10)
+ 
+try:
+    driver.get("http://localhost/projectl/View/login.php")
+ 
+    driver.find_element(By.ID, "username").send_keys("testuser123")
+    driver.find_element(By.ID, "password").send_keys("123456")
+ 
+    driver.find_element(By.XPATH, "//input[@type='submit']").click()
+ 
+    # dashboard এ গেলে success
+    wait.until(EC.url_contains("dashboard.php"))
+ 
+    if "dashboard.php" in driver.current_url:
+        print("Login Test Passed")
+    else:
+        print("Login Test Failed")
+ 
+finally:
+    input("Press Enter to close...")
+    driver.quit()
+ 
+ 
+***********************************Updated***************************************************************
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+ 
+driver = webdriver.Chrome()
+driver.maximize_window()
+wait = WebDriverWait(driver, 10)
+ 
+try:
+    # Step 1: login first
+    driver.get("http://localhost/projectl/View/login.php")
+    driver.find_element(By.ID, "username").send_keys("testuser123")
+    driver.find_element(By.ID, "password").send_keys("123456")
+    driver.find_element(By.XPATH, "//input[@type='submit']").click()
+ 
+    wait.until(EC.url_contains("dashboard.php"))
+ 
+    # Step 2: click update link
+    update_link = wait.until(
+        EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, "Edit Your Info"))
+    )
+    update_link.click()
+ 
+    # Step 3: update email and phone
+    email_field = wait.until(EC.presence_of_element_located((By.NAME, "email")))
+    phone_field = driver.find_element(By.NAME, "phone")
+ 
+    email_field.clear()
+    email_field.send_keys("updateduser123@gmail.com")
+ 
+    phone_field.clear()
+    phone_field.send_keys("01812345678")
+ 
+    # Step 4: submit update
+    driver.find_element(By.XPATH, "//input[@type='submit']").click()
+ 
+    # Step 5: back to dashboard
+    wait.until(EC.url_contains("dashboard.php"))
+ 
+    page_text = driver.page_source
+    if "updateduser123@gmail.com" in page_text and "01812345678" in page_text:
+        print("Update Test Passed")
+    else:
+        print("Update Test Failed")
+ 
+finally:
+    input("Press Enter to close...")
+    driver.quit()
+ 
+ 
+ *************************************************logout*****************************
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+ 
+driver = webdriver.Chrome()
+driver.maximize_window()
+wait = WebDriverWait(driver, 15)
+ 
+try:
+    # নিজের project folder name বসাও
+    driver.get("http://localhost/projectl/View/login.php")
+ 
+    # Login page loaded কিনা check
+    wait.until(EC.presence_of_element_located((By.ID, "username")))
+ 
+    # Login
+    driver.find_element(By.ID, "username").send_keys("testuser123")
+    driver.find_element(By.ID, "password").send_keys("123456")
+    driver.find_element(By.XPATH, "//input[@type='submit']").click()
+ 
+    # Dashboard এ যাওয়া পর্যন্ত wait
+    wait.until(EC.url_contains("dashboard.php"))
+    print("Login successful")
+    print("Current URL after login:", driver.current_url)
+ 
+    # Logout link click
+    logout_link = wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//a[contains(@href,'logout.php')]"))
+    )
+    logout_link.click()
+ 
+    # Login page redirect verify
+    wait.until(EC.url_contains("login.php"))
+    wait.until(EC.presence_of_element_located((By.ID, "username")))
+ 
+    print("Current URL after logout:", driver.current_url)
+ 
+    if "login.php" in driver.current_url:
+        print("Logout Test Passed: Redirected to login page")
+    else:
+        print("Logout Test Failed: Not redirected to login page")
+ 
+except TimeoutException:
+    print("Timeout Error")
+    print("Current URL:", driver.current_url)
+    print("Page Title:", driver.title)
+    print("Page Source (first 1000 chars):")
+    print(driver.page_source[:1000])
+ 
+except NoSuchElementException:
+    print("Element Not Found Error")
+    print("Current URL:", driver.current_url)
+    print("Page Title:", driver.title)
+    print("Page Source (first 1000 chars):")
+    print(driver.page_source[:1000])
+ 
+except Exception as e:
+    print("Unexpected Error:", type(e).__name__)
+    print("Message:", str(e))
+    print("Current URL:", driver.current_url)
+    print("Page Title:", driver.title)
+    print("Page Source (first 1000 chars):")
+    print(driver.page_source[:1000])
+ 
+finally:
+    input("Press Enter to close...")
+    driver.quit()
+
