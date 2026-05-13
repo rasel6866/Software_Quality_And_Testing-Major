@@ -1,1 +1,1 @@
-# MaJOR
+# SQT Major
