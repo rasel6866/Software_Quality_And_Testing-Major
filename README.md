@@ -1,1 +1,1 @@
-# SQT Major
+#  SQT Major
